@@ -16,7 +16,7 @@ const groq = new ChatGroq({
 // 1.1 Rating
 const ratingSearch = async ({ rating }) => {
   try {
-    const res = await fetch(`http://localhost:8080/rating/${rating}`);
+    const res = await fetch(`process.env.Render/rating/${rating}`);
     return await res.json();
   } catch (err) {
     console.error("rating fetching error:", err);
@@ -26,7 +26,7 @@ const ratingSearch = async ({ rating }) => {
 // 1.2 Year
 const yearSearch = async ({ year }) => {
   try {
-    const res = await fetch(`http://localhost:8080/year/${year}`);
+    const res = await fetch(`process.env.Render/year/${year}`);
     return await res.json();
   } catch (err) {
     console.error("year fetching error:", err);
@@ -36,7 +36,7 @@ const yearSearch = async ({ year }) => {
 // 1.3 Title
 const titleSearch = async ({ title }) => {
   try {
-    const res = await fetch(`http://localhost:8080/title/${title}`);
+    const res = await fetch(`process.env.Render/title/${title}`);
     return await res.json();
   } catch (err) {
     console.error("title fetching error:", err);
@@ -46,7 +46,7 @@ const titleSearch = async ({ title }) => {
 // 1.4 Genre
 const genreSearch = async ({ genre }) => {
   try {
-    const res = await fetch(`http://localhost:8080/genre/${genre}`);
+    const res = await fetch(`process.env.Render/genre/${genre}`);
     return await res.json();
   } catch (err) {
     console.error("genre fetching error:", err);

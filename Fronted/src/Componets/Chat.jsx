@@ -18,7 +18,7 @@ function Chat() {
     setMessages(updatedMessages);
 
     try {
-      const response = await fetch("http://localhost:8080/ai", {
+      const response = await fetch("https://ai-powered-movie-search-chat-app-in-db.onrender.com/ai", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ search: query }),
@@ -81,7 +81,7 @@ function Chat() {
                 <div className="grid gap-4">
                   {msg.movies.map((movie, i) => (
                     <div key={i} className="bg-white shadow-md rounded-lg p-4 border">
-                      <h3 className="font-bold text-lg text-gray-800">{movie.title}</h3>
+                      <h3 className="font-bold text-lg text-gray-800"> Movie: {movie.title}</h3>
                       <p className="text-gray-600">{movie.description}</p>
                       <p className="text-sm mt-1">
                         <span className="font-semibold">📅 Year:</span> {movie.year}
@@ -96,8 +96,8 @@ function Chat() {
                 // Case 2: Normal Text
                 <div
                   className={`max-w-xs px-4 py-2 rounded-lg shadow ${msg.sender === "ai"
-                      ? "bg-blue-100 text-left"
-                      : "bg-green-100 text-right"
+                    ? "bg-blue-100 text-left"
+                    : "bg-green-100 text-right"
                     }`}
                 >
                   {msg.text}
