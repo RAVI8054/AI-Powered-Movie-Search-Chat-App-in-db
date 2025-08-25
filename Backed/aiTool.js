@@ -3,187 +3,195 @@ import * as z from "zod";
 import dotenv from "dotenv";
 import { tool } from "@langchain/core/tools";
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
+
 dotenv.config();
-//model=groq=lloma
+
+// ---- Model setup ----
 const groq = new ChatGroq({
   apiKey: process.env.GROQ_API_KEY,
   model: "llama3-70b-8192",
 });
-//-----------1.define funtion---------------
-// 1.1==rating funtion
+
+//-----------1. Define functions---------------
+// 1.1 Rating
 const ratingSearch = async ({ rating }) => {
   try {
     const res = await fetch(`http://localhost:8080/rating/${rating}`);
-    const data = await res.json();
-    return data;
+    return await res.json();
   } catch (err) {
     console.error("rating fetching error:", err);
     return { error: err.message };
   }
 };
-// 1.2 year frind funtion
+// 1.2 Year
 const yearSearch = async ({ year }) => {
   try {
     const res = await fetch(`http://localhost:8080/year/${year}`);
-    const data = await res.json();
-    return data;
+    return await res.json();
   } catch (err) {
-    console.error("year fatching err:", err);
+    console.error("year fetching error:", err);
     return { error: err.message };
   }
 };
-// 1.3 title find funtion
+// 1.3 Title
 const titleSearch = async ({ title }) => {
   try {
     const res = await fetch(`http://localhost:8080/title/${title}`);
-    const data = await res.json();
-    return data;
+    return await res.json();
   } catch (err) {
-    console.error("title fatching err:", err);
+    console.error("title fetching error:", err);
     return { error: err.message };
   }
 };
-// 1.4 genre find funtion
+// 1.4 Genre
 const genreSearch = async ({ genre }) => {
   try {
-    let res = await fetch(`http://localhost:8080/genre/${genre}`);
-    let data = await res.json();
-    return data;
+    const res = await fetch(`http://localhost:8080/genre/${genre}`);
+    return await res.json();
   } catch (err) {
-    console.error("genre fatching err:", err);
+    console.error("genre fetching error:", err);
     return { error: err.message };
   }
 };
-//------------2.define schema--------------------
-// 2.1 for rating
+
+//------------2. Define schemas--------------------
 const ratingschema = z.object({
   rating: z.number().min(0).max(10),
 });
-//2.2 for movies year
 const yearSchema = z.object({
   year: z.number().int().min(1900).max(new Date().getFullYear()),
 });
-//2.3  for titleSchema
 const titleSchema = z.object({
-  title: z.coerce
-    .string()
-    .min(1, "String must be at least 1 characters long")
+  title: z.coerce.string().min(1, "Title must be at least 1 character"),
 });
-// 2.4 for genreSchema
 const genreSchema = z.object({
-  genre: z.string()
-    .min(3, "String must be at least 3 characters long")
-    .max(20, "String cannot exceed 20 characters")
+  genre: z
+    .string()
+    .min(3, "Genre must be at least 3 characters long")
+    .max(20, "Genre cannot exceed 20 characters"),
 });
 
-//------3. create tool---------//
-
-//toolname = too(function,metadata)
-// 3.1 ratingfindTool
+//------3. Create tools---------//
 const ratingfindTool = tool(ratingSearch, {
   name: "searchRating",
   schema: ratingschema,
-  description: `find rating  number from  search input meassage  which must have between 0-10 `,
+  description: `Find rating number from search input between 0-10.`,
 });
-// 3.2 yearfindTool
 const yearfindTool = tool(yearSearch, {
   name: "yearSearch",
   schema: yearSchema,
-  description: "find year from search and that have strcitly number of 4 digit",
+  description: "Find 4-digit year from search.",
 });
-// 3.3 titleFindTool
-const titleFindTool = tool(titleSearch,
-  {
-    name: "titleSearch",
-    schema: titleSchema,
-    description: `Automatically recognize  from search message that user want search 
-                   title/name/movie/film  from search message  that title are  string 
-                  from 1 charter to 20 charter  inside tha search massage of user`
-  }
-)
-// 3.4 genreSearchTool
-const genreSearchTool = tool(genreSearch,
-  {
-    name: "genreSearch",
-    schema: genreSchema,
-    description: ` Automatically find  the genre(s) one or more of the following genres based Action, Adventure, Comedy, Drama,
-       Horror,Thriller, Science Fiction, Fantasy, Romance, Mystery, Crime, Musical, Documentary,
-       Animation, War, Western.The output may include combinations of genres ( Action-Thriller or Romantic Comedy) and \
-       closely related sub-genres or tags thats relevant.its run only whan than inculids thease charters `
-  }
-)
+const titleFindTool = tool(titleSearch, {
+  name: "titleSearch",
+  schema: titleSchema,
+  description: `Recognize when user wants to search by movie/film title.`,
+});
+const genreSearchTool = tool(genreSearch, {
+  name: "genreSearch",
+  schema: genreSchema,
+  description: `Find genre (Action, Comedy, Drama, Horror, etc.) from search.`,
+});
 
-//4.pack/combine all tools i one
+//4. Pack tools
 const tools = [ratingfindTool, yearfindTool, titleFindTool, genreSearchTool];
 
 export async function callmassag(input) {
   try {
-    //5.Tool Binding
     const groqWithTools = groq.bindTools(tools);
+
     const messages = [
       new SystemMessage(
-        `You are a helpful assistant that can call routes based on user search input message.
-        call ratingSearch if the user gives a number between 0-10.or call yearSearch if the user gives a 4-digit year.
-        call  genreSearch if user give relateted charter of genre description or related this if genre not match than go on titleSearch  .
-        and call titleSearch search when user search movie name,film,title name or string etc. 
-        first match from over database collection input  match this string/charter in over
-        database title .if not match  any and any response handler than reply gernal than just respond normally ai. `
+        `You are a helpful assistant. 
+        - If user provides a rating (0-10), call searchRating. 
+        - If user provides a year (4-digit), call yearSearch. 
+        - If user provides a genre (Action, Drama, Horror...), call genreSearch. 
+        - If user provides a movie title, call titleSearch. 
+        - If user asks a general/natural question, just respond normally without calling any tool.`
       ),
       new HumanMessage(input),
     ];
 
-    // 6.tool executing
     const aiMessage = await groqWithTools.invoke(messages);
-    console.log(aiMessage.tool_calls.length);
-    // this is wrong part for this solve first console aimessage
-    console.log("aiMessage is : ", aiMessage.content);
+    console.log("Full AI Message:", JSON.stringify(aiMessage, null, 2));
 
-    if (aiMessage.tool_calls && aiMessage.tool_calls.length > 0) {
-      // for diffcent think that only one tool call have
-      const toolCall = aiMessage.tool_calls[0];
+    // Check for tool calls
+    const toolCalls =
+      aiMessage.tool_calls || aiMessage.additional_kwargs?.tool_calls || [];
+
+    if (toolCalls.length > 0) {
+      const toolCall = toolCalls[0];
       const toolToRun = tools.find((tool) => tool.name === toolCall.name);
 
-      if (toolToRun) {
-        const result = await toolToRun.func(toolCall.args);
-        const name = toolCall.name;
-  
-        if (name === "titleSearch") {
-          if (result.length > 0) {
-            return `movie which you are searching with "${toolCall.args.title}": /n` +
-              result.map(movie => `${movie.title}: in this movie ${movie.description}`)
-          } 
-        }
+      if (!toolToRun) return [{ error: "Tool not found." }];
 
-        if (name === "searchRating") {
-          if (result.length > 0) {
-            return `Movies with rating ${toolCall.args.rating} or above: /n` +
-              result.map(movie => `${movie.title}: in this movie ${movie.description}`);
-          }
-        }
+      const result = await toolToRun.func(toolCall.args);
+      const name = toolCall.name;
 
-        if (name === "yearSearch") {
-          if (result.length > 0) {
-            return `Movies released in the year ${toolCall.args.year}: /n` +
-              result.map(movie => `${movie.title}: in this movie ${movie.description}`);
-          }
-        }
+      if (!result || result.length === 0) {
+        return [{ message: "No movies found for your search." }];
+      }
 
-        if (name === "genreSearch") {
-          if (result.length > 0) {
-            return `Movies in the genre "${toolCall.args.genre}": /n` +
-              result.map(movie => `${movie.title}: in this movie ${movie.description}`);
-          } 
-        }
+      // ---- Format responses ----
+      if (name === "titleSearch") {
+        return [
+          { message: "In this title matching movies are:" },
+          ...result.map((m) => ({
+            title: m.title,
+            description: m.description,
+            year: m.year,
+            genre: m.genre,
+            rating: m.rating,
+          })),
+        ];
+      }
 
-        return { error: " sorry not routes match with your message please specify your query we happy to respond you." };
-      } else {
-        return { error: "Tool not found in registered tools." };
+      if (name === "searchRating") {
+        return [
+          {
+            message: `This rating (${toolCall.args.rating}) and above movies are:`,
+          },
+          ...result.map((m) => ({
+            title: m.title,
+            description: m.description,
+            year: m.year,
+            genre: m.genre,
+            rating: m.rating,
+          })),
+        ];
+      }
+
+      if (name === "yearSearch") {
+        return [
+          { message: `In this year (${toolCall.args.year}) movies are:` },
+          ...result.map((m) => ({
+            title: m.title,
+            description: m.description,
+            year: m.year,
+            genre: m.genre,
+            rating: m.rating,
+          })),
+        ];
+      }
+
+      if (name === "genreSearch") {
+        return [
+          { message: `In this genre (${toolCall.args.genre}) movies are:` },
+          ...result.map((m) => ({
+            title: m.title,
+            description: m.description,
+            year: m.year,
+            genre: m.genre,
+            rating: m.rating,
+          })),
+        ];
       }
     }
 
- return { message: aiMessage.content || "tool not idintyfiying." };
+    // ---- Normal response (no tools triggered) ----
+    return [{ message: aiMessage.content || "Here’s my answer:" }];
   } catch (error) {
     console.error("AI error:", error);
-    return { error: error.message };
+    return [{ error: error.message }];
   }
 }
