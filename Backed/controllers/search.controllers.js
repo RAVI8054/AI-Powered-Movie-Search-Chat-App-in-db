@@ -81,6 +81,7 @@ export async function ratingSearch(req, res) {
 //app.post("/ai",connectAi)
 export async function connectAi(req, res) {
     const { search } = req.body;
+    console.log("user search::",search)
     if (!search) {
         return res.status(400).json({ message: "Search message missing" });
     }

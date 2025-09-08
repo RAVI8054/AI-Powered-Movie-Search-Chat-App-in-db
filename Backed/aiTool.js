@@ -6,8 +6,8 @@ import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 dotenv.config();
 //model=groq=lloma
 const groq = new ChatGroq({
-  apiKey: process.env.GROQ_API_KEY,
-  model: "llama3-70b-8192",
+  apiKey: "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",
+  model: "llama-3.1-8b-instant",
 });
 //-----------1.define funtion---------------
 // 1.1==rating funtion
@@ -72,7 +72,7 @@ const titleSchema = z.object({
 // 2.4 for genreSchema
 const genreSchema = z.object({
   genre: z.string()
-    .min(3, "String must be at least 3 characters long")
+    .min(2, "String must be at least 2 characters long")
     .max(20, "String cannot exceed 20 characters")
 });
 
@@ -83,13 +83,14 @@ const genreSchema = z.object({
 const ratingfindTool = tool(ratingSearch, {
   name: "searchRating",
   schema: ratingschema,
-  description: `find rating  number from  search input meassage  which must have between 0-10 `,
+  description: `find rating  number from  search input meassage 
+   which must have between 0-10.user  when searh like movie rating or rating then call  searchRating route.`,
 });
 // 3.2 yearfindTool
 const yearfindTool = tool(yearSearch, {
   name: "yearSearch",
   schema: yearSchema,
-  description: "find year from search and that have strcitly number of 4 digit",
+  description: "find year from search and that have strcitly number of 4 digit or  user type in search  year ,4 digit number input.",
 });
 // 3.3 titleFindTool
 const titleFindTool = tool(titleSearch,
@@ -106,10 +107,11 @@ const genreSearchTool = tool(genreSearch,
   {
     name: "genreSearch",
     schema: genreSchema,
-    description: ` Automatically find  the genre(s) one or more of the following genres based Action, Adventure, Comedy, Drama,
-       Horror,Thriller, Science Fiction, Fantasy, Romance, Mystery, Crime, Musical, Documentary,
-       Animation, War, Western.The output may include combinations of genres ( Action-Thriller or Romantic Comedy) and \
-       closely related sub-genres or tags thats relevant.its run only whan than inculids thease charters `
+    description: ` Automatically find  form search the genre(s) one or more of the following genres based Action,
+     Adventure, Comedy, Drama,Horror,Thriller, Science Fiction, Fantasy, Romance, Mystery, Crime, Musical,
+      Documentary,Animation, War, Western.The output may include combinations of genres
+       ( Action-Thriller or Romantic Comedy) and \closely related sub-genres or tags thats relevant.
+        its run only whan than inculids thease charters `
   }
 )
 
@@ -122,12 +124,15 @@ export async function callmassag(input) {
     const groqWithTools = groq.bindTools(tools);
     const messages = [
       new SystemMessage(
-        `You are a helpful assistant that can call routes based on user search input message.
-        call ratingSearch if the user gives a number between 0-10.or call yearSearch if the user gives a 4-digit year.
-        call  genreSearch if user give relateted charter of genre description or related this if genre not match than go on titleSearch  .
+        `You are a helpful assistant that can call routes based on user search input message  
+        and also assistant for Greeting, General Message and General Query.
+        call ratingfindTool if the user gives a number between 0-10.or call  yearfindTool
+        if the user gives a 4-digit year. call   genreSearchTool if user give relateted charter of genre
+         description or related this if genre not match than go on titleSearch  .
         and call titleSearch search when user search movie name,film,title name or string etc. 
         first match from over database collection input  match this string/charter in over
-        database title .if not match  any and any response handler than reply gernal than just respond normally ai. `
+        database title .if not match  any and any response handler than reply gernal
+         than just respond normally ai. `
       ),
       new HumanMessage(input),
     ];
@@ -145,32 +150,35 @@ export async function callmassag(input) {
 
       if (toolToRun) {
         const result = await toolToRun.func(toolCall.args);
+        console.log()
         const name = toolCall.name;
   
         if (name === "titleSearch") {
           if (result.length > 0) {
-            return `movie which you are searching with "${toolCall.args.title}": /n` +
-              result.map(movie => `${movie.title}: in this movie ${movie.description}`)
+            return `movie which you are searching with "${toolCall.args.title}": ` +
+              result.map(movie => `${movie.title}: in this movie ${movie.description} \n`)
           } 
         }
 
         if (name === "searchRating") {
+          
           if (result.length > 0) {
-            return `Movies with rating ${toolCall.args.rating} or above: /n` +
+            const data=result
+            return `Movies with rating ${toolCall.args.rating} or above: ` +
               result.map(movie => `${movie.title}: in this movie ${movie.description}`);
           }
         }
 
         if (name === "yearSearch") {
           if (result.length > 0) {
-            return `Movies released in the year ${toolCall.args.year}: /n` +
-              result.map(movie => `${movie.title}: in this movie ${movie.description}`);
+            return `Movies released in the year ${toolCall.args.year}: ` +
+              result.map(movie => `${movie.title}: in this movie ${movie.description} `);
           }
         }
 
         if (name === "genreSearch") {
           if (result.length > 0) {
-            return `Movies in the genre "${toolCall.args.genre}": /n` +
+            return `Movies in the genre "${toolCall.args.genre}": ` +
               result.map(movie => `${movie.title}: in this movie ${movie.description}`);
           } 
         }
