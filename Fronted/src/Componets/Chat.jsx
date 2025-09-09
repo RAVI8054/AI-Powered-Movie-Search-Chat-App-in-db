@@ -13,7 +13,7 @@ function Chat() {
     console.log(messages);
 
     try {
-      const response = await fetch("http://localhost:8080/ai", {
+      const response = await fetch("https://ai-powered-movie-search-chat-app-in-db.onrender.com/ai", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
