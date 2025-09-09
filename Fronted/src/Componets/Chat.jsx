@@ -10,6 +10,7 @@ function Chat() {
     //  user message to UI
     const updatedMessages = [...messages, { sender: "user", text: query }];
     setMessages(updatedMessages);
+    console.log(messages);
 
     try {
       const response = await fetch("http://localhost:8080/ai", {
@@ -22,6 +23,7 @@ function Chat() {
 
       const result = await response.json();
       console.log("result: ", result);
+
 
       const aiReply =
         typeof result === "string"
@@ -42,7 +44,7 @@ function Chat() {
 
   return (
     <div className="flex w-full h-screen">
-      {/* AI Image (Left) */}
+      {/* AI Image (Left) */ }
       <div className="w-1/5 h-full">
         <img
           className="h-full w-full object-cover"
@@ -54,7 +56,7 @@ function Chat() {
       {/* Chat Window (Center) */}
       <div className="w-3/5 h-full flex flex-col bg-red-300 relative">
         {/* Chat Messages */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        <div className="flex-1 overflow-y-auto p-4 space-y-5">
           {messages.map((msg, index) => (
             <div
               key={index}

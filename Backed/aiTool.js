@@ -6,7 +6,7 @@ import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 dotenv.config();
 //model=groq=lloma
 const groq = new ChatGroq({
-  apiKey: "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",
+  apiKey: process.env.GROQ_API_KEY,
   model: "llama-3.1-8b-instant",
 });
 //-----------1.define funtion---------------
@@ -124,7 +124,7 @@ export async function callmassag(input) {
     const groqWithTools = groq.bindTools(tools);
     const messages = [
       new SystemMessage(
-        `You are a helpful assistant that can call routes based on user search input message  
+        `You are a helpful assistant name jasmin that can call routes based on user search input message  
         and also assistant for Greeting, General Message and General Query.
         call ratingfindTool if the user gives a number between 0-10.or call  yearfindTool
         if the user gives a 4-digit year. call   genreSearchTool if user give relateted charter of genre
