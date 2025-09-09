@@ -6,17 +6,18 @@ function Chat() {
   const [messages, setMessages] = useState([]);
   const chatEndRef = useRef(null);
 
-  //  Auto-scroll
+  // Auto-scroll
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  //  Clear Chat
+  // Clear Chat
   const clearChat = () => setMessages([]);
 
-  //  Back button
+  // Back button
   const goBack = () => {
-    window.location.href = "https://ai-powered-movie-search-chat-app-in.vercel.app/";
+    window.location.href =
+      "https://ai-powered-movie-search-chat-app-in.vercel.app/";
   };
 
   const handleSearch = async () => {
@@ -26,11 +27,14 @@ function Chat() {
     setMessages(updatedMessages);
 
     try {
-      const response = await fetch("https://ai-powered-movie-search-chat-app-in-db.onrender.com/ai", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ search: query }),
-      });
+      const response = await fetch(
+        "https://ai-powered-movie-search-chat-app-in-db.onrender.com/ai",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ search: query }),
+        }
+      );
 
       const result = await response.json();
       console.log("Backend Result:", result);
@@ -95,34 +99,34 @@ function Chat() {
 
   return (
     <div className="flex w-full h-screen flex-col">
-      {/*  Fixed Header */}
+      {/* Fixed Header */}
       <div className="fixed top-0 left-0 right-0 flex items-center justify-between bg-red-200 p-3 shadow-md z-10">
         {/* Back Button (Left) */}
         <button
           onClick={goBack}
-          className="px-4 py-2 bg-white text-red-600 rounded-lg shadow hover:bg-gray-100"
+          className="px-3 py-1 bg-white text-red-600 rounded-lg shadow hover:bg-gray-100"
         >
           Back
         </button>
 
-        {/* Animated Message (Center) */}
-        <div className="text-red-800 font-semibold animate-pulse text-center">
+        {/* Animated Message (Desktop only) */}
+        <div className="hidden md:block text-red-800 font-semibold animate-pulse text-center">
           ⏳ Please wait 30–50 sec for first time response...
         </div>
 
         {/* Clear Chat Button (Right) */}
         <button
           onClick={clearChat}
-          className="px-4 py-2 bg-white text-red-600 rounded-lg shadow hover:bg-gray-100"
+          className="px-3 py-1 bg-white text-red-600 rounded-lg shadow hover:bg-gray-100"
         >
-          Clear Chat
+          Clear
         </button>
       </div>
 
-      {/*  Main Section (Images + Chat) */}
+      {/* Main Section (Images + Chat) */}
       <div className="flex flex-1 pt-16">
-        {/* AI Image (Left) */}
-        <div className="w-1/5 h-screen">
+        {/* AI Image (Left, hidden on mobile) */}
+        <div className="hidden md:block w-1/5 h-screen">
           <img
             className="h-full w-full object-cover"
             src="https://images.unsplash.com/photo-1659018966834-99be9746b49e?w=500&auto=format&fit=crop&q=60"
@@ -130,8 +134,8 @@ function Chat() {
           />
         </div>
 
-        {/* Chat Window */}
-        <div className="w-3/5 h-screen flex flex-col bg-red-200 relative">
+        {/* Chat Window (full width on mobile) */}
+        <div className="w-full md:w-3/5 h-screen flex flex-col bg-red-200 relative">
           {/* Messages */}
           <div className="flex-1 overflow-y-auto p-4 space-y-5">
             {messages.map((msg, index) => (
@@ -153,11 +157,11 @@ function Chat() {
             <div ref={chatEndRef} />
           </div>
 
-          {/*  Fixed Input (same color as header) */}
+          {/* Fixed Input */}
           <div className="p-4 bg-red-200 flex items-center">
             <input
               type="text"
-              className="w-full p-2 outline-none border-r-0 bg-white border-white rounded-l-4xl"
+              className="w-full p-2 outline-none border-r-0 bg-white rounded-l-4xl"
               placeholder="Type your message..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
@@ -172,8 +176,8 @@ function Chat() {
           </div>
         </div>
 
-        {/* User Image (Right) */}
-        <div className="w-1/5 h-screen">
+        {/* User Image (Right, hidden on mobile) */}
+        <div className="hidden md:block w-1/5 h-screen">
           <img
             className="h-full w-full object-cover"
             src="https://images.unsplash.com/photo-1613061174169-19c33d651be6?w=500&auto=format&fit=crop&q=60"
