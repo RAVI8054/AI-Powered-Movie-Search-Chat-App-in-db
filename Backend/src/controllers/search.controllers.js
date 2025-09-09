@@ -1,6 +1,6 @@
 
 import MoviesModel from "../model/Movies.model.js";
-import { callmassag } from "../aiTool.js"
+import { callmassag } from "../../aiTool.js"
 
 export async function yearSearch(req, res) {
     try {

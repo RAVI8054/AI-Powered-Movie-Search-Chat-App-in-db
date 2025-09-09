@@ -1,7 +1,7 @@
 import express from 'express'
 const app=express();
 import mongoose  from 'mongoose'
-import searchRoutes from './routes/search.routes.js';
+import searchRoutes from "./src/routes/search.routes.js"
 import  cors from 'cors'
 app.use(cors())
 //import seedDB from './seed/seed.js';
