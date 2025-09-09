@@ -6,17 +6,17 @@ function Chat() {
   const [messages, setMessages] = useState([]);
   const chatEndRef = useRef(null);
 
-  // ✅ Auto-scroll
+  //  Auto-scroll
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // ✅ Clear Chat
+  //  Clear Chat
   const clearChat = () => setMessages([]);
 
-  // ✅ Back button
+  //  Back button
   const goBack = () => {
-    window.location.href = "http://localhost:8000/";
+    window.location.href = "https://ai-powered-movie-search-chat-app-in.vercel.app/";
   };
 
   const handleSearch = async () => {
@@ -26,7 +26,7 @@ function Chat() {
     setMessages(updatedMessages);
 
     try {
-      const response = await fetch("http://localhost:8080/ai", {
+      const response = await fetch("https://ai-powered-movie-search-chat-app-in-db.onrender.com/ai", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ search: query }),
